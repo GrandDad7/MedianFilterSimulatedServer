@@ -33,16 +33,25 @@ object User extends App {
     null
   }
 
+  def cloneImage(image: BufferedImage): BufferedImage = {
+    val newImage = new BufferedImage(image.getWidth, image.getHeight, BufferedImage.TYPE_INT_RGB)
+    val graphics = newImage.createGraphics()
+    graphics.drawImage(image, 0, 0, null)
+    graphics.dispose()
+    newImage
+  }
+
   val system = ActorSystem()
   val serverSerial: ActorRef = system.actorOf(Props[Server1], name = "Server1")
   val serverParallel: ActorRef = system.actorOf(Props[Server2], name = "Server2")
 
-  val image: BufferedImage = loadImageFile
+  val originalImage: BufferedImage = loadImageFile
+  val filteredImage: BufferedImage = cloneImage(originalImage)
 
   implicit val timeout = Timeout(10000.second)
   implicit val ec = system.dispatcher
-  val mfSerial: Future[Any] = serverSerial ? image
-  val mfParallel: Future[Any] = serverParallel ? image
+  val mfSerial: Future[Any] = serverSerial ? filteredImage
+  val mfParallel: Future[Any] = serverParallel ? filteredImage
 
   val gotTheImages: Future[(Any, Any)] = for {
     imageSerial <- mfSerial
@@ -73,9 +82,8 @@ object User extends App {
 
 
       val frame: JFrame = new JFrame("Frame")
-      val component = new Window(photos)
-      frame.add(component)
-      frame.setSize(photos.length * image.getWidth * 2, photos.length * image.getHeight + 50)
+      frame.add(new Window(photos))
+      frame.setSize(photos.length * filteredImage.getWidth * 2, photos.length * filteredImage.getHeight + 50)
       frame.setVisible(true)
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
 
@@ -86,7 +94,6 @@ object User extends App {
 
   class FilteredImage(img: BufferedImage, time: Long) {
     def getImg: BufferedImage = img
-
     def getTime: Long = time
   }
 
@@ -94,10 +101,10 @@ object User extends App {
 
     override def paintComponent(g: Graphics): Unit = {
       super.paintComponent(g)
-      g.drawImage(image, 50, 100, null)
+      g.drawImage(originalImage, 50, 100, null)
       g.setFont(new Font("Arial", Font.BOLD, 30))
       g.setColor(Color.GREEN)
-      g.drawString("Original Image", image.getWidth / 2 - 50, 90)
+      g.drawString("Original Image", filteredImage.getWidth / 2 - 50, 90)
 
       for (i: Int <- images.indices) {
         val img: FilteredImage = images(i)

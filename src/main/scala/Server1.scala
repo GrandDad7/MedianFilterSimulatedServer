@@ -76,9 +76,9 @@ class Server1 extends Actor {
       val x: Int = xy % image.getWidth()
       val y: Int = math.floor(xy / image.getWidth()).toInt
       val color = getMedian(image, x, y)
-      newImage.setRGB(x, y, color.getRGB)
+      image.setRGB(x, y, color.getRGB)
     }
-    newImage
+    image
   }
 
 }
