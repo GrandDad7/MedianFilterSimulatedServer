@@ -11,28 +11,17 @@ class Server1 extends Actor {
 
 
   def receive = {
-    case image: BufferedImage => {
+    case image: BufferedImage =>
       val beforeTime = System.currentTimeMillis()
       val newImage = MedianFilterNoParallel(image)
       val afterTime = System.currentTimeMillis()
-
       sender() ! Server1Response(newImage, afterTime - beforeTime)
-    }
   }
 
 
   def clamp(n: Int, min: Int, max: Int): Int = { // ensure when corners are grabbed are not negatives
     math.min(max, math.max(n, min))
   }
-
-  def cloneImage(image: BufferedImage): BufferedImage = {
-    val newImage = new BufferedImage(image.getWidth, image.getHeight, image.getType)
-    val graphics = newImage.getGraphics
-    graphics.drawImage(newImage, 0, 0, null)
-    graphics.dispose()
-    newImage
-  }
-
 
   def getMedian(image: BufferedImage, x: Int, y: Int): Color = {
 
@@ -57,21 +46,19 @@ class Server1 extends Actor {
 
 
     for(i<-0 to 8) {
-      R(i) = imagePixels(i).getRed()
-      G(i) = imagePixels(i).getGreen()
-      B(i) = imagePixels(i).getBlue()
+      R(i) = imagePixels(i).getRed
+      G(i) = imagePixels(i).getGreen
+      B(i) = imagePixels(i).getBlue
     }
 
     R = R.sorted
     G = G.sorted
     B = B.sorted
 
-    new Color(R(4), G(4), B(4))
+    new Color(R((R.length - 1)/2), G((G.length - 1) / 2), B((B.length - 1) / 2))
   }
 
   def MedianFilterNoParallel(image: BufferedImage): BufferedImage = {
-    val newImage = cloneImage(image)
-
     for (xy: Int <- 0 until (image.getWidth() * image.getHeight())) {
       val x: Int = xy % image.getWidth()
       val y: Int = math.floor(xy / image.getWidth()).toInt

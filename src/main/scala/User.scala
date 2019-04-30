@@ -1,4 +1,4 @@
-import java.awt.{Color, Font, Graphics}
+import java.awt.{Color, Font, Graphics, Image}
 import java.awt.image.BufferedImage
 import java.io.File
 
@@ -7,10 +7,10 @@ import akka.pattern.ask
 import akka.util.Timeout
 
 import scala.concurrent.duration._
-import javax.imageio.ImageIO
 import Exam2.{Server1, Server1Response, Server2, Server2Response}
 import javax.swing.{JComponent, JFileChooser, JFrame}
 import javax.swing.filechooser.FileNameExtensionFilter
+import javax.imageio.ImageIO
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -30,6 +30,7 @@ object User extends App {
     if (choose.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
       return ImageIO.read(choose.getSelectedFile)
     }
+    throw new Exception("You did not select an image.")
     null
   }
 
@@ -59,7 +60,7 @@ object User extends App {
   } yield (imageSerial, imageParallel)
 
   gotTheImages.onComplete {
-    case Success(res) => {
+    case Success(res) =>
       val npDuration = res._1.asInstanceOf[Server1Response].duration
       val pDuration = res._2.asInstanceOf[Server2Response].duration
 
