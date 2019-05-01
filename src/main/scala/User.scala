@@ -65,8 +65,8 @@ object User extends App {
       val pDuration = res._2.asInstanceOf[Server2Response].duration
 
 
-      println("Median Filter Serial: " + npDuration + "ms")
-      println("Median Filter Parallel: " + pDuration + "ms")
+      println("Median Filter using a Serial Implementation: " + npDuration + "ms")
+      println("Median Filter using a Parallel Implementation: " + pDuration + "ms")
 
       val mfSerial = res._1.asInstanceOf[Server1Response].image
       val mfParallel = res._2.asInstanceOf[Server2Response].image
@@ -74,12 +74,20 @@ object User extends App {
       val displaySerial: FilteredImage = new FilteredImage(mfSerial, npDuration)
       val displayParallel: FilteredImage = new FilteredImage(mfParallel, pDuration)
 
-      saveToNewImage(mfSerial, "mfSerial")
-      saveToNewImage(mfSerial, "mfParallel")
+      saveToNewImage(mfSerial, "serialImage")
+      saveToNewImage(mfSerial, "parallelImage")
 
       println("Images saved in the output folder.")
 
       val photos = List(displaySerial, displayParallel)
+
+      println("")
+      Thread.sleep(2000)
+
+      println("Displaying images in new JFrame.")
+      println("Order of images is Serial First, Parallel Second.")
+
+      Thread.sleep(2000)
 
 
       val frame: JFrame = new JFrame("Frame")
@@ -89,7 +97,7 @@ object User extends App {
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
 
       system.terminate()
-    }
+
     case Failure(e) => e.printStackTrace
   }
 
